@@ -1,3 +1,5 @@
+#include "inode.h"
+
 /**
  * @file
  * @brief pool of nodes
@@ -11,11 +13,10 @@
 #include <string.h>
 #include <embox/unit.h>
 
-#include <fs/node.h>
-
 #include <mem/misc/pool.h>
 #include <limits.h>
 #include <errno.h>
+#include <fs/inode.h>
 
 #define MAX_NODE_QUANTITY OPTION_GET(NUMBER,fnode_quantity)
 
