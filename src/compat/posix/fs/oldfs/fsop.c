@@ -55,4 +55,3 @@ int rmdir(const char *pathname) {
 int flock(int fd, int operation) {
 	return kflock(fd, operation);
 }
-
