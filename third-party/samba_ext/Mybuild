@@ -5,7 +5,7 @@ module samba_stubs {
 }
 
 @Build(stage=2, script="$(EXTERNAL_MAKE)")
-@BuildArtifactPath(cppflags="-I$(abspath $(EXTERNAL_BUILD_DIR))/third_party/samba/core/samba-3.6.18/source3/include")
+@BuildArtifactPath(cppflags="-I$(abspath $(EXTERNAL_BUILD_DIR))/third_party/samba_ext/core/samba-3.6.18/source3/include")
 @BuildDepends(third_party.zlib.libs)
 module core {
 	@AddPrefix("^BUILD/extbld/^MOD_PATH/install")
@@ -28,6 +28,7 @@ module core {
 	depends embox.compat.posix.fs.rewinddir_api
 	depends embox.compat.posix.proc.atexit_api
 	depends embox.compat.posix.sys.mman.mmap
+	depends embox.compat.posix.fs.statvfs
 }
 
 @App
@@ -57,6 +58,7 @@ module smbclient {
 	depends embox.compat.posix.net.gethostbyaddr
 	depends embox.compat.posix.net.getservbyport
 	depends embox.compat.posix.fs.rewinddir_api
+	depends embox.compat.posix.fs.statvfs
 
 	depends third_party.zlib.libs
 
