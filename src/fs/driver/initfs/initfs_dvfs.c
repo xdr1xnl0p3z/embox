@@ -39,13 +39,17 @@
 
 struct initfs_file_info {
 	int start_pos;
+
+	size_t        size;
+	unsigned int  ctime; /* time of last status change */
+	unsigned int  mtime;
 };
 
 /**
 * @brief Should be used as inode->i_data, but only for directories
 */
 struct initfs_dir_info {
-	int start_pos;
+	int    start_pos;
 
 	char  *path;
 	size_t path_len;
@@ -53,20 +57,21 @@ struct initfs_dir_info {
 	size_t name_len;
 };
 
-POOL_DEF (initfs_file_pool, struct initfs_file_info,
-		OPTION_GET(NUMBER,file_quantity));
+POOL_DEF (initfs_file_pool, struct initfs_file_info, OPTION_GET(NUMBER,file_quantity));
 POOL_DEF(initfs_dir_pool, struct initfs_dir_info, OPTION_GET(NUMBER,dir_quantity));
 
 static size_t initfs_read(struct file_desc *desc, void *buf, size_t size) {
 	struct initfs_file_info *fi;
+	off_t pos;
 
+	pos = file_get_pos(desc);
 	fi = file_get_inode_data(desc);
 
-	if (desc->pos + size > file_get_size(desc)) {
+	if (pos + size > file_get_size(desc)) {
 		size = file_get_size(desc) - desc->pos;
 	}
 
-	memcpy(buf, (char *) (uintptr_t) (fi->start_pos + desc->pos), size);
+	memcpy(buf, (char *) (uintptr_t) (fi->start_pos + pos), size);
 
 	return size;
 }
@@ -151,7 +156,7 @@ static struct inode *initfs_lookup(char const *name, struct dentry const *dir) {
 				break;
 			}
 
-			if (0 < initfs_fill_inode(node, cpio, &entry)) {
+			if (0 > initfs_fill_inode(node, cpio, &entry)) {
 				dvfs_destroy_inode(node);
 				return NULL;
 			}
@@ -186,7 +191,7 @@ static int initfs_iterate(struct inode *next, struct inode *parent, struct dir_c
 				break;
 			}
 
-			if (0 < initfs_fill_inode(next, prev, &entry)) {
+			if (0 > initfs_fill_inode(next, prev, &entry)) {
 				return -1;
 			}
 
