@@ -45,7 +45,7 @@ struct initfs_file_info {
 * @brief Should be used as inode->i_data, but only for directories
 */
 struct initfs_dir_info {
-	int    start_pos;
+	int start_pos;
 
 	char  *path;
 	size_t path_len;
@@ -53,7 +53,8 @@ struct initfs_dir_info {
 	size_t name_len;
 };
 
-POOL_DEF (initfs_file_pool, struct initfs_file_info, OPTION_GET(NUMBER,file_quantity));
+POOL_DEF (initfs_file_pool, struct initfs_file_info,
+		OPTION_GET(NUMBER,file_quantity));
 POOL_DEF(initfs_dir_pool, struct initfs_dir_info, OPTION_GET(NUMBER,dir_quantity));
 
 static size_t initfs_read(struct file_desc *desc, void *buf, size_t size) {
@@ -121,7 +122,7 @@ static int initfs_fill_inode(struct inode *node, char *cpio,
 
 	fi->start_pos = (intptr_t)entry->data;
 
-	node->i_data = fi;
+	node->i_data    = fi;
 
 	return 0;
 }
@@ -132,14 +133,13 @@ static struct inode *initfs_lookup(char const *name, struct dentry const *dir) {
 	struct cpio_entry entry;
 	struct inode *node = NULL;
 	struct initfs_dir_info *di = dir->d_inode->i_data;
-	size_t p_len = di->path_len;
 
 	while ((cpio = cpio_parse_entry(cpio, &entry))) {
-		char *name = entry.name;
-
-		if (!memcmp(di->path, name, p_len) &&
-				!strncmp(name, name + p_len + (*(name + p_len) == '/' ? 1 : 0), strlen(name))
-				&& strrchr(entry.name + di->path_len + 1, '/') == NULL) {
+		if (!memcmp(di->path, entry.name, di->path_len) &&
+		    !strncmp(name,
+		             entry.name + di->path_len + (*(entry.name + di->path_len) == '/' ? 1 : 0),
+		             strlen(name)) &&
+			strrchr(entry.name + di->path_len + 1, '/') == NULL) {
 
 			if (!S_ISDIR(entry.mode) && !S_ISREG(entry.mode)) {
 				log_error("Unknown inode type in cpio\n");
